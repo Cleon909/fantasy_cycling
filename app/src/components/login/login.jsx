@@ -1,32 +1,42 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
 
 export default function Login({ setToken }) {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5050/login', { email, password }, {
+            const res = await axios.post('/api/login', { username, password }, {
                 withCredentials: true
             });
             setToken(res.data.token);
+            localStorage.setItem('token', res.data.token);
+
         } catch (err) {
             alert('Invalid credentials');
         }
     };
 
+
+    const navigate = useNavigate();
+
+    const goToRegister = (e) => {
+        e.preventDefault();
+        navigate('/register');
+    };
+
     return (
         <div className="login-container">
             <form onSubmit={handleSubmit} className="login-form">
-                <h2>Login</h2>
                 <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    type="Username"
+                    placeholder="Username"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
                 />
                 <input
                     type="password"
@@ -35,6 +45,7 @@ export default function Login({ setToken }) {
                     onChange={e => setPassword(e.target.value)}
                 />
                 <button type="submit">Login</button>
+                <button type="button" onClick={goToRegister}>Register</button>
             </form>
         </div>
     );

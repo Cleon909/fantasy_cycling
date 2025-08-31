@@ -3,6 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from application.models import User
 import jwt
 import datetime
+from procyclingstats import Stage
 from application import app, SECRET_KEY, db
 
 
@@ -75,4 +76,8 @@ def register():
         print("ERROR:",str(e))
         return jsonify({'error':'server error'}), 500
 
-
+@app.route('/api/results', methods=['GET', 'OPTIONS'])
+def results(race_name):
+    # race_name is in format race/year/stage_number i.e. tour-de-france/2022/stage-18
+    try:
+        stage = Stage('race_name')
