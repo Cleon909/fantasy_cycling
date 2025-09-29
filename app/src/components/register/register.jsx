@@ -18,7 +18,7 @@ export default function Regiser() {
         }
         else {
             try {
-                const response = await axios.post('/api/register', { username, email, password }, {
+                await axios.post('/api/register', { username, email, password1 }, {
                     withCredentials: true
                 });
                 navigate('/login');

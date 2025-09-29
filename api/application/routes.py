@@ -5,6 +5,7 @@ import jwt
 import datetime
 from procyclingstats import Stage
 from application import app, SECRET_KEY, db
+from application.helper_functions import start_list
 
 
 
@@ -62,7 +63,7 @@ def register():
         print(data)
         email = data['email']
         username = data['username']
-        password = data['password']
+        password = data['password1']
 
         existing_user = User.query.filter((User.email == email) | (User.username == username)).first()
         if existing_user:
@@ -76,8 +77,26 @@ def register():
         print("ERROR:",str(e))
         return jsonify({'error':'server error'}), 500
 
-@app.route('/api/results', methods=['GET', 'OPTIONS'])
-def results(race_name):
-    # race_name is in format race/year/stage_number i.e. tour-de-france/2022/stage-18
+@app.route('/api/riders', methods=['GET', 'OPTIONS'])
+def riders():
     try:
-        stage = Stage('race_name')
+        race = request.args.get('race')
+        year = request.args.get('year')
+        print(f"Received request: race={race}, year={year}")
+        if not race or not year:
+            return jsonify({"error": "Missing race or year parameter"}), 400
+        data = start_list(race, year)
+        if not data:
+            return jsonify({"error": "No rider data found"}), 404
+        return jsonify({"startList": data}), 200
+    except Exception as e:
+        print(f"There was a problem {race}, {year}")
+        print("ERROR:",str(e))
+        return jsonify({"error": "Server error", "details": str(e)}), 500
+
+
+# @app.route('/api/results', methods=['GET', 'OPTIONS'])
+# def results(race_name):
+#     # race_name is in format race/year/stage_number i.e. tour-de-france/2022/stage-18
+#     try:
+#         stage = Stage('race_name')

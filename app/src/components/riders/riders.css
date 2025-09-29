@@ -1,0 +1,57 @@
+/* RiderList.css */
+
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.rider-list {
+    list-style: none;
+    /* Remove bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+.rider-list-item {
+    display: grid;
+    /* Define two columns: one auto-sized, one taking remaining space */
+    grid-template-columns: 200px 1fr;
+
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+
+    /* Spacing between the columns */
+    gap: 20px;
+}
+
+.rider-list-item:last-child {
+    border-bottom: none;
+    /* Remove border from the last item */
+}
+
+.rider-name {
+    font-weight: bold;
+    color: #333;
+    /* Optional: Ensure text doesn't wrap unnecessarily */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.team-name {
+    color: #666;
+    text-align: right;
+    /* Align team name to the right */
+}
+
+/* Optional: Add a header row for clarity */
+.rider-list-item:first-child {
+    font-weight: bold;
+    color: #000;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 5px;
+}

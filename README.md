@@ -1,5 +1,10 @@
 # fantasy_cycling
 
+
+## How to deploy locally
+1. cd into api folder and run python app.py
+2. cd into app folder and npm run dev
+
 ## Design Considerations
 
 1. need to be able to pick a team
