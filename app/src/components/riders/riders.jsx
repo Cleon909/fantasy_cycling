@@ -1,57 +1,58 @@
 import React, { useEffect, useState } from 'react';
-import { replace, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './riders.css';
 
-export default function startList() {
-    const [riderList, setRiderList] = useState([])
-    const [loading, setLoading] = useState(true)
+export default function Riders({ race }) {
+    const [riderList, setRiderList] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        if (!race) {
+            return; // Wait until a race is selected
+        }
         const fetchRiders = async () => {
+            setLoading(true);
             try {
-                const race = 'world-championship'
-                const year = 2025
+                const year = 2025;
                 const response = await axios.get('/api/riders', {
                     params: { race, year },
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
                     withCredentials: false,
                 });
                 console.log('API response:', response.data);
-                setRiderList(response.data.startList)
-                setLoading(false)
+                setRiderList(response.data.startList || []);
+                setError(null);
             } catch (error) {
-                console.error('error fetching rider list:', error)
-                setError('Failed to fetch riders')
-                setLoading(false)
+                console.error('Error fetching rider list:', error);
+                setError('Failed to fetch riders.');
+                setRiderList([]);
+            } finally {
+                setLoading(false);
             }
-        }
-        fetchRiders();
-    }, []);
+        };
 
+        fetchRiders();
+
+    }, [race]);
+
+    if (!race) return <p>Please select a race.</p>;
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
-
 
     return (
         <div className="container">
             <h2>Race Start List</h2>
             <ul className="startList">
-                {riderList.map((riderTeam, index) => {
-                    const riderName = riderTeam[0]; // The first item is the rider name
-                    const teamName = riderTeam[1];  // The second item is the team name
-
-                    return (
-                        <li key={index} className="rider-list-item">
-                            {/* Column 1: Rider Name */}
-                            <span className="rider-name">{riderName}</span>
-
-                            {/* Column 2: Team Name */}
-                            <span className="team-name">{teamName}</span>
-                        </li>
-                    );
-                })}
+                {riderList.map(([riderName, teamName], index) => (
+                    <li key={index} className="rider-list-item">
+                        <span className="rider-name">{riderName}</span>
+                        <span className="team-name">{teamName}</span>
+                    </li>
+                ))}
             </ul>
         </div>
-    )
+    );
 }

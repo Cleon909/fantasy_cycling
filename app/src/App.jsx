@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/login/login';
 import Register from './components/register/register'
-import Riders from './components/riders/riders'
+import Panel from './components/panel/panel'
 
 function App() {
   const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    // On mount, check localStorage for token
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   return (
     <Router>
@@ -16,7 +24,7 @@ function App() {
             !token ? (
               <Login setToken={setToken} />
             ) : (
-              <Riders />
+              <Panel />
             )
           }
         />

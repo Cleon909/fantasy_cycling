@@ -6,6 +6,7 @@ import datetime
 from procyclingstats import Stage
 from application import app, SECRET_KEY, db
 from application.helper_functions import start_list
+from functools import wraps
 
 
 
@@ -28,15 +29,8 @@ def login():
         print(data)
       
         user =  User.query.filter_by(username=data['username']).first()
-        # email = data.get('email')
-        # password = data.get('password')
         logged_in = login_user(user)
 
-        # if USERS.get(email) == password:
-        #     token = jwt.encode({
-        #         'email': email,
-        #         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-        #     }, SECRET_KEY, algorithm='HS256')
         if logged_in:
             token = jwt.encode({
             'username': data['username'],
@@ -55,6 +49,32 @@ def login():
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({'error': 'Internal server error'}), 500
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        # JWT can be sent in the Authorization header as "Bearer <token>"
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            if auth_header.startswith('Bearer '):
+                token = auth_header.split(' ')[1]
+        # Or you can accept it as a cookie or query param if you wish
+
+        if not token:
+            return jsonify({'error': 'Token is missing!'}), 401
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            current_user = User.query.filter_by(username=data['username']).first()
+            if not current_user:
+                return jsonify({'error': 'User not found!'}), 401
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired!'}), 401
+        except Exception as e:
+            return jsonify({'error': 'Token is invalid!', 'details': str(e)}), 401
+        return f(current_user, *args, **kwargs)
+    return decorated
 
 @app.route('/api/register', methods=['POST', 'OPTIONS'])
 def register():
@@ -78,7 +98,8 @@ def register():
         return jsonify({'error':'server error'}), 500
 
 @app.route('/api/riders', methods=['GET', 'OPTIONS'])
-def riders():
+@token_required
+def riders(current_user):
     try:
         race = request.args.get('race')
         year = request.args.get('year')
