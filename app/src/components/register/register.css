@@ -21,13 +21,14 @@ body {
     justify-content: flex-end;
     align-items: flex-start;
     background-image: url('/mont-vetoux-1.jpeg');
-    background-size: 110%;
+    background-size: cover;        /* scales image and crops gracefully */
     background-position: right center;
+    background-repeat: no-repeat;  /* prevents tiling */
 }
 
 /* Centered form box */
 .register-form {
-    padding: 10rem;
+    padding: clamp(1rem, 5vw, 4rem);
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -61,4 +62,10 @@ body {
 
 .register-form button:hover {
     background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+    .register-container {
+        background-position: center center; /* center image on phones */
+    }
 }

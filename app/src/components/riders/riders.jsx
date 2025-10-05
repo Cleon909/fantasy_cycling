@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Riders.css';
+import { logOut } from '../../utils/logout';
+import { useNavigate } from 'react-router-dom';
 
 export default function Riders({ race }) {
     const [riderList, setRiderList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!race) {
@@ -22,6 +25,10 @@ export default function Riders({ race }) {
                     },
                     withCredentials: false,
                 });
+                if (response.data.error == 'Token has expired!'){
+                    logOut();
+                    navigate('/login');
+                    }
                 console.log('API response:', response.data);
                 setRiderList(response.data.startList || []);
                 setError(null);
