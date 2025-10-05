@@ -88,6 +88,15 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
+@app.route('/api/check_token', methods = ['GET'])
+@token_required
+def check_token(current_user):
+    return jsonify({
+        'valid': True,
+        'username': current_user.username
+    }), 200 
+        
+
 @app.route('/api/register', methods=['POST', 'OPTIONS'])
 def register():
     try:

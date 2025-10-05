@@ -24,7 +24,7 @@ function App() {
             !token ? (
               <Login setToken={setToken} />
             ) : (
-              <Panel />
+              <Panel token={token} />
             )
           }
         />

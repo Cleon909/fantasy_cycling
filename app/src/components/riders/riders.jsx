@@ -4,7 +4,7 @@ import './Riders.css';
 import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 
-export default function Riders({ race }) {
+export default function Riders({ race, token }) {
     const [riderList, setRiderList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -21,14 +21,14 @@ export default function Riders({ race }) {
                 const response = await axios.get('/api/riders', {
                     params: { race, year },
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${token}`,
                     },
                     withCredentials: false,
                 });
-                if (response.data.error == 'Token has expired!'){
+                if (response.data.error == 'Token has expired!') {
                     logOut();
                     navigate('/login');
-                    }
+                }
                 console.log('API response:', response.data);
                 setRiderList(response.data.startList || []);
                 setError(null);
