@@ -8,7 +8,8 @@ export default defineConfig({
     host: '0.0.0.0',       // 👈 Add this line
     port: 5173,            // 👈 Optional: explicitly set the port if needed
     proxy: {
-      '/api': 'http://localhost:5051',
+      '/api': 'http://www.cloudofsuspicion.uk',
     },
+    allowedHosts: ['www.cloudofsuspicion.uk', 'cloudofsuspicion.uk']
   },
 })

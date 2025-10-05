@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import Riders from '../riders/riders';
+import Riders from '../Riders/Riders';
 import Menu from '../Menu/Menu'
-import './panel.css';
+import './Panel.css';
 
 export default function Panel() {
     const [race, setRace] = useState(null)

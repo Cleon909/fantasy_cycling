@@ -9,6 +9,12 @@ from application.helper_functions import start_list
 from functools import wraps
 
 
+@app.before_request
+def log_request_info():
+    print("Headers:", request.headers)
+    print("Method:", request.method)
+    print("Path:", request.path)
+    print("Body:", request.data)
 
 @app.route('/api/login', methods=['POST', 'OPTIONS'])
 def login():
@@ -29,6 +35,12 @@ def login():
         print(data)
       
         user =  User.query.filter_by(username=data['username']).first()
+        if not user:
+            response = jsonify({'error': 'User not found'})
+            response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            return response, 401
+
         logged_in = login_user(user)
 
         if logged_in:
@@ -80,7 +92,6 @@ def token_required(f):
 def register():
     try:
         data = request.get_json()
-        print(data)
         email = data['email']
         username = data['username']
         password = data['password1']

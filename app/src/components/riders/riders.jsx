@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './riders.css';
+import './Riders.css';
 
 export default function Riders({ race }) {
     const [riderList, setRiderList] = useState([]);

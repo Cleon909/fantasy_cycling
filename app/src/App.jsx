@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Login from './components/login/login';
-import Register from './components/register/register'
-import Panel from './components/panel/panel'
+import Login from './components/Login/Login';
+import Register from './components/Register/Register'
+import Panel from './components/Panel/Panel'
 
 function App() {
   const [token, setToken] = useState(null);

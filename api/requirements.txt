@@ -11,10 +11,10 @@ Flask-SQLAlchemy==3.1.1
 idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.6
-jwt==1.4.0
 MarkupSafe==3.0.3
 procyclingstats==0.2.7
 pycparser==2.23
+pyjwt==2.10.1
 requests==2.32.5
 selectolax==0.4.0
 SQLAlchemy==2.0.43
