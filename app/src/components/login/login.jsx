@@ -15,6 +15,7 @@ export default function Login({ setToken }) {
             });
             setToken(res.data.token);
             localStorage.setItem('token', res.data.token);
+            localStorage.setItem('user', username)
 
         } catch (err) {
             alert('Invalid credentials');

@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import Riders from '../Riders/Riders';
 import Menu from '../Menu/Menu'
+import Header from '../Header/Header';
+// import Team from '../Team/Team'
 import './Panel.css';
 import axios from 'axios';
 
+
+
 export default function Panel({ token }) {
+    const [race, setRace] = useState(null)
+    const [team, setTeam] = useState([])
     useEffect(() => {
         const checkToken = async () => {
             try {
@@ -32,15 +38,22 @@ export default function Panel({ token }) {
 
     }, [token])
 
-
-    const [race, setRace] = useState(null)
     return (
-        <>
+        <>  <Header />
             <Menu
                 selectRace={setRace}
                 race={race}
             />
-            <Riders race={race} token={token} />
+            <Riders
+                race={race}
+                token={token}
+                setTeam={setTeam}
+                team={team} />
+            {/* <Team
+                race={race}
+                team={team}
+                setTeam={setTeam}
+                token={token} /> */}
         </>
     )
 }

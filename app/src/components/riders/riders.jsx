@@ -4,7 +4,7 @@ import './Riders.css';
 import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 
-export default function Riders({ race, token }) {
+export default function Riders({ race, token, setTeam, team }) {
     const [riderList, setRiderList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -42,12 +42,29 @@ export default function Riders({ race, token }) {
         };
 
         fetchRiders();
+        console.log(team)
 
-    }, [race]);
+    }, [race, team]);
 
     if (!race) return <p>Please select a race.</p>;
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
+
+
+    const addRider = (rider) => {
+        if (team.length > 9) {
+            alert('You already have 9 riders')
+        }
+        if (team.includes(rider)) {
+            alert('You can\'t select the same rider more than once')
+        }
+        else {
+            setTeam(team => ([
+                ...team, rider
+            ]
+            ))
+        }
+    }
 
     return (
         <div className="container">
@@ -55,7 +72,7 @@ export default function Riders({ race, token }) {
             <ul className="startList">
                 {riderList.map(([riderName, teamName], index) => (
                     <li key={index} className="rider-list-item">
-                        <span className="rider-name">{riderName}</span>
+                        <button onClick={() => addRider(riderName)} className="rider-name">{riderName}</button>
                         <span className="team-name">{teamName}</span>
                     </li>
                 ))}
