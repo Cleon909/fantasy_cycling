@@ -2,3 +2,27 @@
     display: flex;
     flex-direction: row;
 }
+
+.container {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    width: 100vw;
+    overflow: auto;
+    margin-top: 60px;
+    border: 1px solid red;
+}
+
+.main-panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+        border: 1px solid red;
+}
+
+.panel-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}

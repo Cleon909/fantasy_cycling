@@ -4,7 +4,7 @@ import './Riders.css';
 import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 
-export default function Riders({ race, token, setTeam, team }) {
+export default function Riders({ race, token, setTeam }) {
     const [riderList, setRiderList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -29,7 +29,6 @@ export default function Riders({ race, token, setTeam, team }) {
                     logOut();
                     navigate('/login');
                 }
-                console.log('API response:', response.data);
                 setRiderList(response.data.startList || []);
                 setError(null);
             } catch (error) {
@@ -42,9 +41,8 @@ export default function Riders({ race, token, setTeam, team }) {
         };
 
         fetchRiders();
-        console.log(team)
 
-    }, [race, team]);
+    }, [race, token]);
 
     if (!race) return <p>Please select a race.</p>;
     if (loading) return <p>Loading...</p>;
@@ -52,22 +50,30 @@ export default function Riders({ race, token, setTeam, team }) {
 
 
     const addRider = (rider) => {
-        if (team.length > 9) {
-            alert('You already have 9 riders')
-        }
-        if (team.includes(rider)) {
-            alert('You can\'t select the same rider more than once')
-        }
-        else {
-            setTeam(team => ([
-                ...team, rider
-            ]
-            ))
-        }
-    }
+        setTeam(prevTeam => {
+            const currentRaceTeam = prevTeam[race] || [];
+
+            if (currentRaceTeam.length >= 9) {
+                alert('You already have 9 riders for this race');
+                return prevTeam;
+            }
+
+            if (currentRaceTeam.includes(rider)) {
+                alert('You can\'t select the same rider more than once');
+                return prevTeam;
+            }
+
+            // Return a new team object, updating only the current race
+            return {
+                ...prevTeam,
+                [race]: [...currentRaceTeam, rider],
+            };
+        });
+    };
+
 
     return (
-        <div className="container">
+        <div className="rider-container">
             <h2>Race Start List</h2>
             <ul className="startList">
                 {riderList.map(([riderName, teamName], index) => (

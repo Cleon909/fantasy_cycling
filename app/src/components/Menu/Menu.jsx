@@ -1,15 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import './Menu.css';
+import axios from "axios";
 
-const races = [
-    { id: 1, name: 'world-championship' },
-    { id: 2, name: 'tour-de-france' },
-    { id: 3, name: 'vuelta-a-espana' },
-    { id: 4, name: 'il-lombardia' }
-];
+// const races = [
+//     { id: 1, name: 'world-championship' },
+//     { id: 2, name: 'tour-de-france' },
+//     { id: 3, name: 'vuelta-a-espana' },
+//     { id: 4, name: 'il-lombardia' }
+// ];
 
-export default function Menu({ selectRace, race }) {
+export default function Menu({ selectRace, race, setDisplay, getTeam, setTeam, teams, races }) {
     const [expandedRace, setExpandedRace] = useState(null);
+    const user = localStorage.getItem('user')
+    
+  //     const getRaces = async () => {
+  //   try {
+  //     const response = await axios.get('/api/get_races', {
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem('token')}`,
+  //       },
+  //       withCredentials: false,
+  //     });
+  //     return response.data || [];
+  //   } catch (error) {
+  //     console.error('Error fetching races:', error);
+  //     return [];
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const fetchRaces = async () => {
+  //     const fetchedRaces = await getRaces();
+  //     setRaces(fetchedRaces);
+  //   };
+
+  //   fetchRaces();
+  // }, []);
+
 
     const toggleExpand = (raceId) => {
         setExpandedRace(expandedRace === raceId ? null : raceId);
@@ -22,7 +49,19 @@ export default function Menu({ selectRace, race }) {
                 {races.map((raceEl) => (
                     <li key={raceEl.id}>
                         <button
-                            onClick={() => toggleExpand(raceEl.id)}
+                            onClick={() => {
+                                toggleExpand(raceEl.id);
+                                selectRace(`${raceEl.name}`);
+                                setDisplay('')
+                                // const savedTeam = getTeam(user, raceEl.name);
+                                // if (!Array.isArray(teams[raceEl.name]) || teams[raceEl.name].length === 0)
+                                // {
+                                //     setTeam(prevteam => ({
+                                //         ...prevteam,
+                                //         [raceEl.name]: savedTeam
+                                //     }));
+                                // }
+                            }}
                             className={race === raceEl.name ? 'active' : ''}
                         >
                             {raceEl.name}
@@ -32,13 +71,13 @@ export default function Menu({ selectRace, race }) {
                         {expandedRace === raceEl.id && (
                             <ul className="submenu">
                                 <li>
-                                    <button onClick={() => selectRace(`${raceEl.name}`)}>
+                                    <button onClick={() => { setDisplay('riders') }}>
                                         Riders
                                     </button>
                                 </li>
                                 <li>
                                     {/* <button onClick={() => raceResults(`${raceEl.name}`)}> */}
-                                    <button onClick={() => console.warn('Not coded yet!')}>
+                                    <button onClick={() => setDisplay('results')}>
                                         Results
                                     </button>
                                 </li>

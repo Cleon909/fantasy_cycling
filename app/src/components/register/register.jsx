@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // ✅ Import this
 import './Register.css';
 
-export default function Regiser() {
+export default function Register() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('')
     const [password1, setPassword1] = useState('');
@@ -15,6 +15,7 @@ export default function Regiser() {
         e.preventDefault();
         if (password1 != password2) {
             alert("Passwords do not match")
+            return
         }
         else {
             try {

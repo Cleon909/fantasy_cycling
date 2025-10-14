@@ -1,0 +1,120 @@
+/* Team.css */
+
+/* Container */
+.team-container {
+    height: 600px;
+    width: 100%;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+    background-color: #fafafa;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    border: 1px solid red;
+    box-sizing: border-box;
+}
+
+/* Headers */
+.team-container h2 {
+    font-size: 1.5rem;
+    color: #222;
+    margin-bottom: 0.5rem;
+    border: 1px solid red;
+}
+
+.team-container p {
+    margin: 0.5rem 0 1rem;
+    color: #555;
+    border: 1px solid red;
+}
+
+/* Team list */
+.team-container .teamlist {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    border: 1px solid red;
+}
+
+.team-container .riderListitem {
+    display: flex;
+    align-items: center;
+    border: 1px solid red;
+}
+
+/* Rider buttons */
+.team-container .riderName {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid red;
+}
+
+.team-container .riderName:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.team-container .riderName:active {
+    background-color: #003d80;
+}
+
+/* Save Team button */
+.team-container .saveTeamButton {
+    margin-top: 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid red;
+}
+
+.team-container .saveTeamButton:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.team-container .saveTeamButton:active {
+    background-color: #1e7e34;
+}
+
+/* Success/Error message */
+.team-container h2+h2 {
+    margin-top: 1rem;
+    color: #28a745;
+    border: 1px solid red;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .team-container {
+        max-width: 90%;
+        padding: 1rem;
+    }
+
+    .team-container .riderName,
+    .team-container .saveTeamButton {
+        width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .team-container .teamlist {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

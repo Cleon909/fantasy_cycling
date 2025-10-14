@@ -1,3 +1,7 @@
+# only for development, not for production
+vite.config.js
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

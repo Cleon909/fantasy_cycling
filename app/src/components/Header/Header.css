@@ -23,6 +23,10 @@
     font-weight: 600;
     margin: 0;
 }
+.header-left {
+    display: flex;
+    flex-direction: row;
+}
 
 .header-right {
     display: flex;

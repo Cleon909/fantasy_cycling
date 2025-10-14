@@ -1,56 +1,50 @@
-/* Ensure the root and body take full height */
-html,
-body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-}
+/* Scoped Register CSS */
 
-#root {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-}
-
+/* Ensure the container fills viewport */
 .register-container {
     height: 100vh;
-    width: 100%;
+    width: 100vw;
     display: flex;
     justify-content: flex-end;
     align-items: flex-start;
     background-image: url('/mont-vetoux-1.jpeg');
-    background-size: cover;        /* scales image and crops gracefully */
+    background-size: cover;
     background-position: right center;
-    background-repeat: no-repeat;  /* prevents tiling */
+    background-repeat: no-repeat;
 }
 
-/* Centered form box */
-.register-form {
+/* Form box */
+.register-container .register-form {
     padding: clamp(1rem, 5vw, 4rem);
     border-radius: 8px;
     display: flex;
     flex-direction: column;
     width: 300px;
     color: black;
+    background: rgba(255, 255, 255, 0.1);
+    /* optional: subtle overlay for readability */
+    backdrop-filter: blur(4px);
 }
 
-.register-form h2 {
+/* Heading inside the form */
+.register-container .register-form h2 {
     color: white;
-    justify-self: center;
+    text-align: center;
+    margin-bottom: 1rem;
 }
 
-.register-form input {
+/* Inputs */
+.register-container .register-form input {
     margin-bottom: 1rem;
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: white;
-    color: black
+    color: black;
 }
 
-.register-form button {
+/* Buttons */
+.register-container .register-form button {
     padding: 0.5rem;
     background-color: #007bff;
     color: white;
@@ -58,14 +52,23 @@ body {
     border-radius: 4px;
     cursor: pointer;
     margin-bottom: 1rem;
+    transition: background-color 0.2s ease-in-out;
 }
 
-.register-form button:hover {
+.register-container .register-form button:hover {
     background-color: #0056b3;
 }
 
+/* Mobile adjustments */
 @media (max-width: 600px) {
     .register-container {
-        background-position: center center; /* center image on phones */
+        justify-content: center;
+        align-items: center;
+        background-position: center center;
+    }
+
+    .register-container .register-form {
+        width: 90%;
+        padding: 1.5rem;
     }
 }
