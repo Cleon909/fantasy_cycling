@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify, make_response, redirect, url_for
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import Flask, request, jsonify
+from flask_login import current_user, login_user
 from application.models import User, Team, RiderPosition
 import jwt
 import datetime
 import json
 from application import app, SECRET_KEY, db
-from application.helper_functions import start_list, save_team_to_db, get_rider_position_from_api, mutate_name
+from application.helper_functions import start_list, save_team_to_db, get_rider_position_from_api, mutate_name, calculate_points_per_rider
 from functools import wraps
 from dotenv import load_dotenv
 import os
@@ -158,6 +158,7 @@ def get_team(current_user):
     race = request.args.get('race')
     print(f"recieved user: {user}, race: {race}, userID {current_user.id}")
     team = Team.query.filter_by(user_id=current_user.id, race=race).first()
+    print(team)
     if not team:
         return jsonify({"team": []})
     return jsonify({"team": team.team})
@@ -186,14 +187,19 @@ def calculate_score(current_user,):
         for rider in unique_riders:
             rider = mutate_name(rider)
             position = get_rider_position_from_api(race_name, rider)
-            print(f"Position for {rider}: {position}")
+            points = calculate_points_per_rider(position)
+            print(f"{rider}: position={position}, points={points}")
             if position is not None:
-                riders_positions[rider] = position
+                if rider not in riders_positions:
+                    riders_positions[rider] = {}
+                riders_positions[rider]['position'] = position
+                riders_positions[rider]['points'] = points
                 existing = RiderPosition.query.filter_by(race=race_name, rider=rider).first()
                 if existing:
                     existing.position = position
+                    existing.points = points
                 else:
-                    db.session.add(RiderPosition(race=race_name, rider=rider, position=position))
+                    db.session.add(RiderPosition(race=race_name, rider=rider, position=position, points=points))
 
         db.session.commit()
         return jsonify({"message": "Scores calculated successfully", "riders_positions": riders_positions}), 200
@@ -205,8 +211,19 @@ def calculate_score(current_user,):
 
 
 
-# @app.route('/api/results', methods=['GET', 'OPTIONS'])
-# def results(race_name):
-#     # race_name is in format race/year/stage_number i.e. tour-de-france/2022/stage-18
-#     try:
-#         stage = Stage('race_name')
+@app.route('/api/get_position_and_points', methods=['GET', 'OPTIONS'])
+@token_required
+def results(current_user):
+    try:
+        race_name = request.args.get('race')
+        print(f"Fetching position for race: {race_name}")
+        rider_name = request.args.get('rider')
+        normalised_rider_name = mutate_name(rider_name)
+        print(f"Fetching position for rider: {normalised_rider_name}")
+        rider_data = RiderPosition.query.filter_by(race=race_name, rider=normalised_rider_name).first()
+        print(f"Rider data: {rider_data}")
+        return jsonify({"position": rider_data.position, "points": rider_data.points}), 200
+    except Exception as e:
+        print("Error fetching position:", str(e))
+        return jsonify({"error": "Server error", "details": str(e)}), 500
+       

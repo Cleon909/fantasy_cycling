@@ -38,8 +38,10 @@ class RiderPosition(db.Model):
     race = db.Column(db.String(64), index=True, nullable=False)
     rider = db.Column(db.String(128), nullable=False)
     position = db.Column(db.Integer, nullable=False)
+    points = db.Column(db.Integer, nullable=True)
 
-    def __init__(self, race, rider, position):
+    def __init__(self, race, rider, position, points):
         self.race = race
         self.rider = rider
         self.position = position
+        self.polints = points

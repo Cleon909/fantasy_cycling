@@ -1,120 +1,135 @@
-/* Team.css */
-
 /* Container */
 .team-container {
-    height: 600px;
-    width: 100%;
-    margin: 2rem auto;
-    padding: 1.5rem;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
-    background-color: #fafafa;
-    text-align: center;
-    font-family: Arial, sans-serif;
-    border: 1px solid red;
-    box-sizing: border-box;
+  width: 100%;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  font-family: 'Inter', Arial, sans-serif;
+  position: sticky;
+  top: 0;
 }
 
 /* Headers */
-.team-container h2 {
-    font-size: 1.5rem;
-    color: #222;
-    margin-bottom: 0.5rem;
-    border: 1px solid red;
+.team-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.2rem;
 }
 
-.team-container p {
-    margin: 0.5rem 0 1rem;
-    color: #555;
-    border: 1px solid red;
+.team-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1.2rem;
 }
 
-/* Team list */
-.team-container .teamlist {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-    border: 1px solid red;
+/* Table */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  margin-bottom: 1rem;
 }
 
-.team-container .riderListitem {
-    display: flex;
-    align-items: center;
-    border: 1px solid red;
+.team-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
 }
 
-/* Rider buttons */
-.team-container .riderName {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.6rem 1rem;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s ease-in-out;
-    border: 1px solid red;
+.team-table th,
+.team-table td {
+  padding: 0.25rem 0.3rem;
+  border-bottom: 1px solid #eee;
+  text-align: center;
 }
 
-.team-container .riderName:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
+.team-table th {
+  background: #f6f8fa;
+  font-weight: 600;
+  color: #444;
 }
 
-.team-container .riderName:active {
-    background-color: #003d80;
+.team-table td {
+  color: black
 }
 
-/* Save Team button */
-.team-container .saveTeamButton {
-    margin-top: 1rem;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    border: 1px solid red;
+.team-table tr:hover {
+  background: #f9f9f9;
+  height: 1rem;
 }
 
-.team-container .saveTeamButton:hover {
-    background-color: #218838;
-    transform: scale(1.05);
+.rider-name {
+  font-weight: 500;
+  color: #007bff;
 }
 
-.team-container .saveTeamButton:active {
-    background-color: #1e7e34;
+/* Remove button */
+.remove-btn {
+  background: transparent;
+  color: #e63946;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
-/* Success/Error message */
-.team-container h2+h2 {
-    margin-top: 1rem;
-    color: #28a745;
-    border: 1px solid red;
+.remove-btn:hover {
+  color: #c82333;
+  transform: scale(1.2);
 }
 
-/* Mobile adjustments */
+/* Save button */
+.save-btn {
+  margin-top: 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.save-btn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.save-btn:active {
+  background-color: #1e7e34;
+}
+
+/* Save message */
+.save-message {
+  margin-top: 1rem;
+  color: #28a745;
+  font-weight: 600;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile */
 @media (max-width: 600px) {
-    .team-container {
-        max-width: 90%;
-        padding: 1rem;
-    }
+  .team-container {
+    padding: 1rem;
+  }
 
-    .team-container .riderName,
-    .team-container .saveTeamButton {
-        width: 100%;
-        font-size: 0.95rem;
-    }
+  .team-table th,
+  .team-table td {
+    padding: 0.4rem;
+  }
 
-    .team-container .teamlist {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .save-btn {
+    width: 100%;
+    font-size: 0.95rem;
+  }
 }

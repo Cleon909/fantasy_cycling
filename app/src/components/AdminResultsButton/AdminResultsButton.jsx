@@ -3,13 +3,12 @@ import axios from "axios";
 import "./AdminResultsButton.css";
 
 export default function AdminResultsButton({ races, token }) {
+  const user = localStorage.getItem("user");
+  if (user !== "Admin") return null;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedRace, setSelectedRace] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-
-  const user = localStorage.getItem("user");
-  console.log(typeof races)
 
   const handleFetchResults = async () => {
     if (!selectedRace) return;
@@ -19,10 +18,10 @@ export default function AdminResultsButton({ races, token }) {
     try {
       const response = await axios.get(
         "/api/calculate_score", {
-        params: { user, race_name: selectedRace },
+        params: { race_name: selectedRace },
         headers: { Authorization: `Bearer ${token}` },
-        },
-    )
+      },
+      )
       setMessage(`✅ ${response.data.message}`);
 
       // Close modal automatically after 3 seconds
@@ -34,8 +33,6 @@ export default function AdminResultsButton({ races, token }) {
       setLoading(false);
     }
   };
-
-  if (user !== "Admin") return null;
 
   return (
     <div className="admin-results">

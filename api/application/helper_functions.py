@@ -39,10 +39,8 @@ def save_team_to_db(user_id, race, team):
 
 def get_rider_position_from_api(race, rider):
     url = f"rider/{rider}"
-    print(url)
     response = Rider(url)
     for item in response.season_results():
-        print(response.season_results())
         if 'stage_url' in item and race in item['stage_url']:
             if item['result'] == None:
                 return 9999
@@ -50,7 +48,20 @@ def get_rider_position_from_api(race, rider):
         
 
 def mutate_name(name):
+    if name == "HAGENES Per Strand":
+        return "per-strand-hagenes"
+    if name == "AYUSO Juan":
+        return "juan-ayuso-pesquera"
+    if name == "OLIVEIRA Ivo":
+        return "ivo-emanuel-alves"
+    if name == "HONORÉ Mikkel Frølich":
+        return "mikkel-honore"
     name = unidecode(name)
     parts = name.split(' ')
     new_name = "-".join([parts[-1]] + parts[:-1]).lower()
     return new_name
+
+def calculate_points_per_rider(position):
+    if position == 1: return 20
+    if position >= 11: return 0
+    else: return 11 - position
