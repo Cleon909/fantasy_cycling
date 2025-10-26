@@ -45,3 +45,8 @@ class RiderPosition(db.Model):
         self.rider = rider
         self.position = position
         self.polints = points
+
+class RaceLeague(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    race = db.Column(db.String(64), index=True, unique=True)
+    league = db.Column(db.JSON)

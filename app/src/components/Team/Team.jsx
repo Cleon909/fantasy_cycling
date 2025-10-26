@@ -71,7 +71,7 @@ export default function Team({ race, teams, setTeam, token, riderResults }) {
               <tr key={index}>
                 <td className="rider-name">{riderName}</td>
                 <td>{didTheyDNF(riderName)}</td>
-                <td>{riderResults[riderName]?.[1] || 'fuck' }</td>
+                <td>{riderResults[riderName]?.[1]}</td>
                 <td>
                   <button
                     className="remove-btn"

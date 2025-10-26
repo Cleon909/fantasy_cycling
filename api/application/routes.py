@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_login import current_user, login_user
-from application.models import User, Team, RiderPosition
+from application.models import User, Team, RiderPosition, RaceLeague
 import jwt
 import datetime
 import json
@@ -175,8 +175,11 @@ def get_races(current_user):
 def calculate_score(current_user,):
     race_name = request.args.get('race_name')
     riders_positions = {}
+    league_table = {}
     try:
         list_of_teams = Team.query.filter_by(race=race_name).all()
+        for team in list_of_teams:
+            league_table[team.user_id] = 0
         all_riders = [
             rider
             for team in list_of_teams
@@ -185,23 +188,31 @@ def calculate_score(current_user,):
         ]
         unique_riders = list(set(all_riders))
         for rider in unique_riders:
-            rider = mutate_name(rider)
-            position = get_rider_position_from_api(race_name, rider)
+            rider_norm = mutate_name(rider)
+            position = get_rider_position_from_api(race_name, rider_norm)
             points = calculate_points_per_rider(position)
-            print(f"{rider}: position={position}, points={points}")
             if position is not None:
-                if rider not in riders_positions:
-                    riders_positions[rider] = {}
-                riders_positions[rider]['position'] = position
-                riders_positions[rider]['points'] = points
-                existing = RiderPosition.query.filter_by(race=race_name, rider=rider).first()
+                if rider_norm not in riders_positions:
+                    riders_positions[rider_norm] = {}
+                riders_positions[rider_norm]['position'] = position
+                riders_positions[rider_norm]['points'] = points
+                for team in list_of_teams:
+                    if rider in team.team:
+                        league_table[team.user_id] += points
+                existing = RiderPosition.query.filter_by(race=race_name, rider=rider_norm).first()
                 if existing:
                     existing.position = position
                     existing.points = points
                 else:
                     db.session.add(RiderPosition(race=race_name, rider=rider, position=position, points=points))
-
-        db.session.commit()
+                existing_league = RaceLeague.query.filter_by(race=race_name).first()
+                if existing_league:
+                    existing_league.league = league_table
+                else:
+                    db.session.add(RaceLeague(race=race_name, league=league_table))             
+                db.session.commit()
+        for team in league_table:
+            print(f"User ID: {team}, Total Points: {league_table[team]}")
         return jsonify({"message": "Scores calculated successfully", "riders_positions": riders_positions}), 200
     except Exception as e:
         db.session.rollback()
@@ -227,3 +238,28 @@ def results(current_user):
         print("Error fetching position:", str(e))
         return jsonify({"error": "Server error", "details": str(e)}), 500
        
+@app.route('/api/get_league', methods=['GET', 'OPTIONS'])
+@token_required
+def get_league(current_user):
+    try:
+        race_name = request.args.get('race')
+        league_data = RaceLeague.query.filter_by(race=race_name).first()
+        if not league_data:
+            return jsonify({"league": {}}), 200
+        return jsonify({"league": league_data.league}), 200
+    except Exception as e:
+        print("Error fetching league:", str(e))
+        return jsonify({"error": "Server error", "details": str(e)}), 500
+
+@app.route('/api/get_users', methods=['GET', 'OPTIONS'])
+@token_required
+def get_users(current_user):
+    try:
+        users = User.query.all()
+        users_list = {}
+        for user in users:
+            users_list[user.id] = user.username
+        return jsonify({"users": users_list}), 200
+    except Exception as e:
+        print("Error fetching users:", str(e))
+        return jsonify({"error": "Server error", "details": str(e)}), 500

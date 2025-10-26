@@ -98,6 +98,7 @@ export default function Panel({ token }) {
       const data = await getPosition(race, rider, token);
       const position = data.position;
       const points = data.points; 
+      console.log(`Fetched for ${rider}: position=${position}, points=${points}`);
       setRiderResults(prev => ({ ...prev, [rider]:[position, points] }));
     }
   };
