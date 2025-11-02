@@ -4,8 +4,8 @@ from application.models import User, Team, RiderPosition, RaceLeague
 import jwt
 import datetime
 import json
-from application import app, SECRET_KEY, db
-from application.helper_functions import start_list, save_team_to_db, get_rider_position_from_api, mutate_name, calculate_points_per_rider
+from application import app, db
+from application.helper_functions import start_list, save_team_to_db, get_rider_position_from_api, calculate_points_per_rider, lookup_rider_url
 from functools import wraps
 from dotenv import load_dotenv
 import os
@@ -21,6 +21,7 @@ def log_request_info():
 
 @app.route('/api/login', methods=['POST', 'OPTIONS'])
 def login():
+    key = app.config['SECRET_KEY']
     try:
         print("POST request received")
 
@@ -41,7 +42,7 @@ def login():
             token = jwt.encode({
             'username': data['username'],
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=168)
-            }, SECRET_KEY, algorithm='HS256')
+            }, key, algorithm='HS256')
             response = jsonify({'token': token})
             response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
             response.headers['Access-Control-Allow-Credentials'] = 'true'
@@ -60,6 +61,7 @@ def login():
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        key = app.config['SECRET_KEY']
         token = None
         # JWT can be sent in the Authorization header as "Bearer <token>"
         if 'Authorization' in request.headers:
@@ -72,7 +74,7 @@ def token_required(f):
             print(jsonify({'error': 'Token is missing!'}), 401)
             return jsonify({'error': 'Token is missing!'}), 401
         try:
-            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            data = jwt.decode(token, key, algorithms=['HS256'])
             current_user = User.query.filter_by(username=data['username']).first()
             if not current_user:
                 return jsonify({'error': 'User not found!'}), 401
@@ -188,18 +190,18 @@ def calculate_score(current_user,):
         ]
         unique_riders = list(set(all_riders))
         for rider in unique_riders:
-            rider_norm = mutate_name(rider)
-            position = get_rider_position_from_api(race_name, rider_norm)
+            rider_url=lookup_rider_url(rider)
+            position = get_rider_position_from_api(race_name, rider_url)
             points = calculate_points_per_rider(position)
             if position is not None:
-                if rider_norm not in riders_positions:
-                    riders_positions[rider_norm] = {}
-                riders_positions[rider_norm]['position'] = position
-                riders_positions[rider_norm]['points'] = points
+                if rider not in riders_positions:
+                    riders_positions[rider] = {}
+                riders_positions[rider]['position'] = position
+                riders_positions[rider]['points'] = points
                 for team in list_of_teams:
                     if rider in team.team:
                         league_table[team.user_id] += points
-                existing = RiderPosition.query.filter_by(race=race_name, rider=rider_norm).first()
+                existing = RiderPosition.query.filter_by(race=race_name, rider=rider).first()
                 if existing:
                     existing.position = position
                     existing.points = points
@@ -229,9 +231,7 @@ def results(current_user):
         race_name = request.args.get('race')
         print(f"Fetching position for race: {race_name}")
         rider_name = request.args.get('rider')
-        normalised_rider_name = mutate_name(rider_name)
-        print(f"Fetching position for rider: {normalised_rider_name}")
-        rider_data = RiderPosition.query.filter_by(race=race_name, rider=normalised_rider_name).first()
+        rider_data = RiderPosition.query.filter_by(race=race_name, rider=rider_name).first()
         print(f"Rider data: {rider_data}")
         return jsonify({"position": rider_data.position, "points": rider_data.points}), 200
     except Exception as e:

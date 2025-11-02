@@ -50,3 +50,16 @@ class RaceLeague(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     race = db.Column(db.String(64), index=True, unique=True)
     league = db.Column(db.JSON)
+
+    def __init__(self, race, league):
+        self.race = race
+        self.league = league
+
+class RiderUrl(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rider_name = db.Column(db.String(64), index=True)
+    rider_url = db.Column(db.String(64))
+
+    def __init__(self, rider_name, rider_url):
+        self.rider_name = rider_name
+        self.rider_url = rider_url

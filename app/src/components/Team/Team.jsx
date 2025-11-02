@@ -3,7 +3,6 @@ import axios from 'axios';
 import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 import './Team.css';
-import { mutateName } from '../../utils/mutateName';
 
 export default function Team({ race, teams, setTeam, token, riderResults }) {
   const [saveMessage, setSaveMessage] = useState('');
@@ -47,7 +46,7 @@ export default function Team({ race, teams, setTeam, token, riderResults }) {
 
   const didTheyDNF = (riderName) => {
     const result = riderResults[riderName]?.[0];
-    if (result == 9999) {return 'DNF'}
+    if (result == 9999) { return 'DNF' }
     return result
   }
 

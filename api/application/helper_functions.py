@@ -1,15 +1,23 @@
 from procyclingstats import RaceStartlist, Rider
-from application.models import Team
+from application.models import Team, RiderUrl
 from application import db
 from flask import jsonify
-from unidecode import unidecode
+
 
 def start_list(race, year):
     url_string = f"race/{race}/{year}/startlist"
     race_startlist = RaceStartlist(url_string)
+    parsed_startlist = race_startlist.parse()['startlist']
+    for rider in parsed_startlist:
+        existing_rider = RiderUrl.query.filter_by(rider_name=rider['rider_name']).first()
+        if existing_rider:
+            continue
+        new_rider = RiderUrl(rider['rider_name'], rider['rider_url'])
+        db.session.add(new_rider)
+    db.session.commit()
     rider_team_list = [
     [rider['rider_name'], rider['team_name']]
-    for rider in race_startlist.parse()['startlist']
+    for rider in parsed_startlist
     ]
     return rider_team_list
 
@@ -37,29 +45,20 @@ def save_team_to_db(user_id, race, team):
         print("ERROR in save_team_to_db:", str(e))
         return jsonify({'error': 'Server error', 'details': str(e)}), 500
 
-def get_rider_position_from_api(race, rider):
-    url = f"rider/{rider}"
-    response = Rider(url)
+def get_rider_position_from_api(race, rider_url):
+    response = Rider(rider_url)
     for item in response.season_results():
         if 'stage_url' in item and race in item['stage_url']:
             if item['result'] == None:
                 return 9999
             return item['result']
-        
 
-def mutate_name(name):
-    if name == "HAGENES Per Strand":
-        return "per-strand-hagenes"
-    if name == "AYUSO Juan":
-        return "juan-ayuso-pesquera"
-    if name == "OLIVEIRA Ivo":
-        return "ivo-emanuel-alves"
-    if name == "HONORÉ Mikkel Frølich":
-        return "mikkel-honore"
-    name = unidecode(name)
-    parts = name.split(' ')
-    new_name = "-".join([parts[-1]] + parts[:-1]).lower()
-    return new_name
+def lookup_rider_url(rider_name):
+        try:
+            rider_url = RiderUrl.query.filter_by(rider_name=rider_name).first()
+            return rider_url.rider_url
+        except Exception as e:
+            return "failed to find rider url"
 
 def calculate_points_per_rider(position):
     if position == 1: return 20
