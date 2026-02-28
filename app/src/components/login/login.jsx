@@ -18,6 +18,7 @@ export default function Login({ setToken }) {
             localStorage.setItem('user', username)
 
         } catch (err) {
+            console.log(err)
             alert('Invalid credentials');
         }
     };
@@ -33,8 +34,9 @@ export default function Login({ setToken }) {
     return (
         <div className="login-container">
             <form onSubmit={handleSubmit} className="login-form">
+                <h2>🚴 Fantasy Cycling</h2>
                 <input
-                    type="Username"
+                    type="text"
                     placeholder="Username"
                     value={username}
                     onChange={e => setUsername(e.target.value)}

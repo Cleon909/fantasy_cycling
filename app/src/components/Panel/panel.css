@@ -1,28 +1,37 @@
-.Panel {
-    display: flex;
-    flex-direction: row;
-}
-
-.container {
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-    width: 100vw;
-    overflow: auto;
-    margin-top: 60px;
-    border: 1px solid red;
-}
-
-.main-panel {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-        border: 1px solid red;
-}
+/* ===== Panel Layout ===== */
 
 .panel-root {
   display: flex;
   flex-direction: column;
   height: 100%;
   flex: 1;
+  background-color: var(--bg-primary);
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  width: 100%;
+  overflow: auto;
+  margin-top: 56px;
+}
+
+.main-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.25rem;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .main-panel {
+    padding: 1rem;
+  }
 }

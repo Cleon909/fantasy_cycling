@@ -1,65 +1,76 @@
-/* RiderList.css */
+/* ===== Riders List ===== */
 
 .rider-container {
-    width: 100%;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    border: 1px solid red;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  box-sizing: border-box;
 }
 
-.rider-list {
-    list-style: none;
-    /* Remove bullet points */
-    padding: 0;
-    margin: 0;
-    border: 1px solid red;
+.rider-container h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.startList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .rider-list-item {
-    display: grid;
-    /* Define two columns: one auto-sized, one taking remaining space */
-    grid-template-columns: 200px 1fr;
-
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-    border: 1px solid red;
-
-    /* Spacing between the columns */
-    gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition);
 }
 
-.rider-list-item:last-child {
-    border-bottom: none;
-    border: 1px solid red;
-    /* Remove border from the last item */
+.rider-list-item:hover {
+  background-color: var(--bg-hover);
 }
 
-.rider-name {
-    font-weight: bold;
-    color: #ffffff;
-    /* Optional: Ensure text doesn't wrap unnecessarily */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border: 1px solid red;
+.rider-list-item .rider-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: color var(--transition);
+}
+
+.rider-list-item .rider-name:hover {
+  color: var(--accent);
 }
 
 .team-name {
-    color: #666;
-    text-align: center;
-    /* Align team name to the right */
-    border: 1px solid red;
+  color: var(--text-muted);
+  text-align: right;
+  font-size: 0.8rem;
 }
 
-/* Optional: Add a header row for clarity */
-.rider-list-item:first-child {
-    font-weight: bold;
-    color: #000;
-    border-bottom: 2px solid #ccc;
-    margin-bottom: 5px;
-    border: 1px solid red;
+@media (max-width: 600px) {
+  .rider-list-item {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .team-name {
+    text-align: left;
+    padding-left: 0.5rem;
+  }
 }

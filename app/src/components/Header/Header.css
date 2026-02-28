@@ -1,83 +1,90 @@
+/* ===== Header ===== */
+
 .Header {
-    width: 100%;
-    height: 60px;
-    background-color: #1e1e1e;
-    color: #fff;
+  width: 100%;
+  height: 56px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.25rem;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-bottom: 1px solid var(--border-default);
+  z-index: 1000;
+}
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 0 20px;
-    box-sizing: border-box;
-    position: fixed;
-    top: 0;
-    left: 0;
-
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+.header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
 }
 
 .header-left .logo {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-}
-.header-left {
-    display: flex;
-    flex-direction: row;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 .header-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 #user {
-    font-weight: 500;
-    white-space: nowrap;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
 .logOut {
-    background-color: #ff4d4f;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+  background-color: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all var(--transition);
 }
 
 .logOut:hover {
-    background-color: #d9363e;
+  background-color: var(--danger);
+  color: #fff;
+}
+
+.get_results {
+  display: none;
 }
 
 /* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 600px) {
-    .Header {
-        flex-direction: row;
-        height: auto;
-        padding: 10px 16px;
-        gap: 6px;
-    }
+  .Header {
+    height: auto;
+    padding: 0.6rem 1rem;
+    gap: 0.4rem;
+  }
 
-    .header-left .logo {
-        font-size: 1rem;
-    }
+  .header-left .logo {
+    font-size: 1rem;
+  }
 
-    .header-right {
-        width: 100%;
-        justify-content: flex-end;
-    }
+  #user {
+    font-size: 0.8rem;
+  }
 
-    #user {
-        font-size: 0.9rem;
-    }
-
-    .logOut {
-        padding: 6px 10px;
-        font-size: 0.85rem;
-    }
+  .logOut {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+  }
 }

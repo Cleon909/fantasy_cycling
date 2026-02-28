@@ -1,123 +1,124 @@
-/* Container */
+/* ===== Team Card ===== */
+
 .team-container {
   width: 100%;
-  margin: 1rem auto;
-  padding: 1.5rem;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
   text-align: center;
-  font-family: 'Inter', Arial, sans-serif;
-  position: sticky;
-  top: 0;
 }
 
-/* Headers */
 .team-title {
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 0.2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.15rem;
 }
 
 .team-subtitle {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  margin-top: 0;
 }
 
 /* Table */
 .table-wrapper {
   overflow-x: auto;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   margin-bottom: 1rem;
 }
 
 .team-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .team-table th,
 .team-table td {
-  padding: 0.25rem 0.3rem;
-  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--border-subtle);
   text-align: center;
 }
 
 .team-table th {
-  background: #f6f8fa;
+  background: var(--bg-elevated);
   font-weight: 600;
-  color: #444;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .team-table td {
-  color: black
+  color: var(--text-primary);
 }
 
 .team-table tr:hover {
-  background: #f9f9f9;
-  height: 1rem;
+  background: var(--bg-hover);
 }
 
-.rider-name {
+.team-table .rider-name {
   font-weight: 500;
-  color: #007bff;
+  color: var(--accent);
 }
 
 /* Remove button */
 .remove-btn {
   background: transparent;
-  color: #e63946;
+  color: var(--text-muted);
   border: none;
-  font-size: 1rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
 }
 
 .remove-btn:hover {
-  color: #c82333;
-  transform: scale(1.2);
+  color: var(--danger);
+  background: rgba(248, 81, 73, 0.1);
 }
 
 /* Save button */
 .save-btn {
-  margin-top: 1rem;
-  background-color: #28a745;
-  color: white;
+  margin-top: 0.75rem;
+  background-color: var(--success);
+  color: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 0.7rem 1.5rem;
-  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color var(--transition), transform var(--transition);
 }
 
 .save-btn:hover {
-  background-color: #218838;
-  transform: scale(1.05);
+  background-color: var(--success-hover);
+  transform: translateY(-1px);
 }
 
 .save-btn:active {
-  background-color: #1e7e34;
+  transform: translateY(0);
 }
 
 /* Save message */
 .save-message {
-  margin-top: 1rem;
-  color: #28a745;
-  font-weight: 600;
-  animation: fadeIn 0.3s ease-in-out;
+  margin-top: 0.75rem;
+  color: var(--success);
+  font-weight: 500;
+  font-size: 0.85rem;
+  animation: teamFadeIn 0.3s ease-in-out;
 }
 
-/* Animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
+@keyframes teamFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Mobile */
 @media (max-width: 600px) {
   .team-container {
     padding: 1rem;
@@ -126,10 +127,10 @@
   .team-table th,
   .team-table td {
     padding: 0.4rem;
+    font-size: 0.8rem;
   }
 
   .save-btn {
     width: 100%;
-    font-size: 0.95rem;
   }
 }
