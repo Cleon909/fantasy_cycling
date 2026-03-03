@@ -4,7 +4,7 @@ import Menu from "../Menu/Menu";
 import Header from "../Header/Header";
 import Team from "../Team/Team";
 import Result from "../Result/Result";
-import "./Panel.css";
+import "./panel.css";
 import axios from "axios";
 
 const getRaces = async () => {

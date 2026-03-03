@@ -118,7 +118,7 @@ def register():
 
 @app.route('/api/riders', methods=['GET', 'OPTIONS'])
 @token_required
-def riders(current_uer):
+def riders(current_user):
     try:
         race = request.args.get('race')
         year = request.args.get('year')

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './Riders.css';
+import './riders.css';
 import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ export default function Riders({ race, token, setTeam }) {
         const fetchRiders = async () => {
             setLoading(true);
             try {
-                const year = 2025;
+                const year = 2026;
                 const response = await axios.get('/api/riders', {
                     params: { race, year },
                     headers: {
