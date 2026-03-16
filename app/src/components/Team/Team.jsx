@@ -4,12 +4,20 @@ import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 import './Team.css';
 
-export default function Team({ race, teams, setTeam, token, riderResults, year }) {
+export default function Team({ race, teams, setTeam, token, riderResults, year, raceLocked, raceStartDate }) {
   const [saveMessage, setSaveMessage] = useState('');
   const navigate = useNavigate();
 
   const saveTeam = async (race, team) => {
     const user = localStorage.getItem('user');
+    if (raceLocked) {
+      setSaveMessage(
+        raceStartDate
+          ? `🔒 Team selection locked (start date: ${raceStartDate})`
+          : '🔒 Team selection locked for this race'
+      );
+      return;
+    }
     try {
       const response = await axios.post(
         '/api/save_team',
@@ -26,7 +34,16 @@ export default function Team({ race, teams, setTeam, token, riderResults, year }
       console.log('API response: ', response.data);
     } catch (error) {
       console.error('Error saving team: ', error);
-      setSaveMessage('❌ Error saving team!');
+      if (error?.response?.status === 403) {
+        const startDate = error?.response?.data?.start_date;
+        setSaveMessage(
+          startDate
+            ? `🔒 Team selection locked (start date: ${startDate})`
+            : '🔒 Team selection locked for this race'
+        );
+      } else {
+        setSaveMessage('❌ Error saving team!');
+      }
     }
   };
 
@@ -38,6 +55,14 @@ export default function Team({ race, teams, setTeam, token, riderResults, year }
   }, [saveMessage]);
 
   const removeRider = (rider) => {
+    if (raceLocked) {
+      setSaveMessage(
+        raceStartDate
+          ? `🔒 Team selection locked (start date: ${raceStartDate})`
+          : '🔒 Team selection locked for this race'
+      );
+      return;
+    }
     setTeam((prev) => ({
       ...prev,
       [`${race}_${year}`]: (prev[`${race}_${year}`] || []).filter((r) => r !== rider),
@@ -88,6 +113,7 @@ export default function Team({ race, teams, setTeam, token, riderResults, year }
       <button
         className="save-btn"
         onClick={() => saveTeam(race, teams[`${race}_${year}`])}
+        disabled={!!raceLocked}
       >
         Save Team
       </button>

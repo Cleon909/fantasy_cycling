@@ -51,6 +51,25 @@ export default function Panel({ token }) {
   const [displayRiderOrResult, setDisplayRiderOrResult] = useState("");
   const [races, setRaces] = useState([]);
   const [riderResults, setRiderResults] = useState({})
+  const [raceStatus, setRaceStatus] = useState({});
+
+  const getRaceStatus = useCallback(
+    async (race, year) => {
+      if (!race) return { locked: false, start_date: null };
+      try {
+        const response = await axios.get("/api/get_race_status", {
+          params: { race, year },
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: false,
+        });
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching race status:", error);
+        return { locked: false, start_date: null };
+      }
+    },
+    [token]
+  );
 
   // ✅ Stable getTeam function
   const getTeam = useCallback(
@@ -112,13 +131,38 @@ export default function Panel({ token }) {
     fetchAll();
   }, [race, year, token, getTeam]);
 
+  useEffect(() => {
+    const fetchStatus = async () => {
+      if (!token || !race) return;
+      const status = await getRaceStatus(race, year);
+      setRaceStatus((prev) => ({ ...prev, [`${race}_${year}`]: status }));
+    };
+    fetchStatus();
+  }, [race, year, token, getRaceStatus]);
+
 
   // ✅ Choose what to render (Riders vs Results)
   const RidersOrResult =
     displayRiderOrResult === "riders" ? (
-      <Riders race={race} token={token} setTeam={setTeam} year={year} />
+      <Riders
+        race={race}
+        token={token}
+        setTeam={setTeam}
+        year={year}
+        raceLocked={raceStatus[`${race}_${year}`]?.locked}
+        raceStartDate={raceStatus[`${race}_${year}`]?.start_date}
+      />
     ) : displayRiderOrResult === "results" ? (
-      <Result race={race} token={token} year={year} team={teams[`${race}_${year}`]} riderResults={riderResults} />
+      <Result
+        race={race}
+        token={token}
+        year={year}
+        team={teams[`${race}_${year}`]}
+        riderResults={riderResults}
+        mode="race"
+      />
+    ) : displayRiderOrResult === "overall" ? (
+      <Result token={token} year={year} mode="overall" />
     ) : (
       <div>Please select Riders or Results from the menu</div>
     );
@@ -138,14 +182,18 @@ export default function Panel({ token }) {
           year={year}
         />
         <div className="main-panel">
-          <Team
-            race={race}
-            teams={teams}
-            token={token}
-            setTeam={setTeam}
-            riderResults={riderResults}
-            year={year}
-          />
+          {race && displayRiderOrResult !== "overall" && (
+            <Team
+              race={race}
+              teams={teams}
+              token={token}
+              setTeam={setTeam}
+              riderResults={riderResults}
+              year={year}
+              raceLocked={raceStatus[`${race}_${year}`]?.locked}
+              raceStartDate={raceStatus[`${race}_${year}`]?.start_date}
+            />
+          )}
           {RidersOrResult}
         </div>
       </div>

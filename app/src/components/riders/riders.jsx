@@ -4,7 +4,7 @@ import './riders.css';
 import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 
-export default function Riders({ race, token, setTeam, year }) {
+export default function Riders({ race, token, setTeam, year, raceLocked, raceStartDate }) {
     const [riderList, setRiderList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -49,6 +49,14 @@ export default function Riders({ race, token, setTeam, year }) {
 
 
     const addRider = (rider) => {
+        if (raceLocked) {
+            alert(
+                raceStartDate
+                    ? `Team selection is locked (race starts on ${raceStartDate}).`
+                    : 'Team selection is locked for this race.'
+            );
+            return;
+        }
         setTeam(prevTeam => {
             const currentRaceTeam = prevTeam[`${race}_${year}`] || [];
 
@@ -74,10 +82,21 @@ export default function Riders({ race, token, setTeam, year }) {
     return (
         <div className="rider-container">
             <h2>Race Start List</h2>
+            {raceLocked && (
+                <p>
+                    Team selection is locked{raceStartDate ? ` (start date: ${raceStartDate})` : ''}.
+                </p>
+            )}
             <ul className="startList">
                 {riderList.map(([riderName, teamName], index) => (
                     <li key={index} className="rider-list-item">
-                        <button onClick={() => addRider(riderName)} className="rider-name">{riderName}</button>
+                        <button
+                            onClick={() => addRider(riderName)}
+                            className="rider-name"
+                            disabled={!!raceLocked}
+                        >
+                            {riderName}
+                        </button>
                         <span className="team-name">{teamName}</span>
                     </li>
                 ))}

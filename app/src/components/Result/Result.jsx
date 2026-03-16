@@ -52,11 +52,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Result.css';
 
-export default function Result({ race, token, year }) {
+export default function Result({ race, token, year, mode = "race" }) {
     const [league, setLeague] = useState([]);
     const [users, setUsers] = useState({});
 
     useEffect(() => {
+        if (mode !== "race") return;
         const fetchUsers = async () => {
             try {
                 const response = await axios.get("/api/get_users", {
@@ -76,11 +77,27 @@ export default function Result({ race, token, year }) {
         if (token) {
             fetchUsers();
         }
-    }, [token]);
+    }, [token, mode]);
 
     useEffect(() => {
         const fetchLeague = async () => {
             try {
+                if (mode === "overall") {
+                    const response = await axios.get("/api/get_overall_league", {
+                        params: { year },
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    if (!response.data.error && Array.isArray(response.data.league)) {
+                        setLeague(response.data.league);
+                    } else {
+                        setLeague([]);
+                    }
+
+                    console.log("Overall league API response: ", response.data);
+                    return;
+                }
+
                 const response = await axios.get("/api/get_league", {
                     params: { race, year },
                     headers: { Authorization: `Bearer ${token}` },
@@ -98,26 +115,39 @@ export default function Result({ race, token, year }) {
                 console.log("League API response: ", response.data);
             } catch (error) {
                 console.error("Error fetching league: ", error);
+                setLeague([]);
             }
         };
 
-        if (race && token && year) {
+        if (token && year && (mode === "overall" || race)) {
             fetchLeague();
         }
-    }, [race, token, year]);
+    }, [race, token, year, mode]);
 
     return (
         <div className="result-container">
-            <h2>Race League</h2>
+            <h2>{mode === "overall" ? "Monuments League" : "Race League"}</h2>
             <ul className="league-list">
                 {league.length > 0 ? (
-                    league.map((entry, index) => (
-                        <li key={index} className="result-list-item">
-                            <span className="rank">{index + 1}.</span>{" "}
-                            <span className="username">{users[entry.user]}</span>{" "}
-                            <span className="points">{entry.points} pts</span>
-                        </li>
-                    ))
+                    league.map((entry, index) => {
+                        if (mode === "overall") {
+                            return (
+                                <li key={index} className="result-list-item">
+                                    <span className="rank">{entry.rank ?? index + 1}.</span>{" "}
+                                    <span className="username">{entry.username}</span>{" "}
+                                    <span className="points">{entry.points} pts</span>
+                                </li>
+                            );
+                        }
+
+                        return (
+                            <li key={index} className="result-list-item">
+                                <span className="rank">{index + 1}.</span>{" "}
+                                <span className="username">{users[entry.user]}</span>{" "}
+                                <span className="points">{entry.points} pts</span>
+                            </li>
+                        );
+                    })
                 ) : (
                     <li>No league data available</li>
                 )}

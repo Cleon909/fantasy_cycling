@@ -5,7 +5,15 @@ import jwt
 import datetime
 import json
 from application import app, db
-from application.helper_functions import start_list, save_team_to_db, get_rider_position_from_api, calculate_points_per_rider, lookup_rider_url
+from application.helper_functions import (
+    calculate_points_per_rider,
+    get_race_start_date,
+    get_rider_position_from_api,
+    lookup_rider_url,
+    race_team_is_locked,
+    save_team_to_db,
+    start_list,
+)
 from functools import wraps
 from dotenv import load_dotenv
 import os
@@ -150,15 +158,119 @@ def save_team(current_user):
         year = data.get('year', 2026)
         team = data.get('team')
 
+        try:
+            year = int(year)
+        except Exception:
+            year = 2026
+
+        if not race:
+            return jsonify({"error": "race is required"}), 400
+
+        if race_team_is_locked(race, year):
+            start_date = get_race_start_date(race, year)
+            return (
+                jsonify(
+                    {
+                        "error": "Team selection is locked for this race",
+                        "race": race,
+                        "year": year,
+                        "start_date": start_date.isoformat() if start_date else None,
+                    }
+                ),
+                403,
+            )
+
         userID = User.query.filter_by(username=user).first().id
         print(f"recieved user: {user}, race: {race}, year: {year}, team:{team}")
         if not team:
-            return jsonify({"error": "no team supplied"}, 404)
+            return jsonify({"error": "no team supplied"}), 404
         save_team_to_db(userID, race, team, year)
         return jsonify({"message": "Team saved successfully"}), 200
     except Exception as e:
         print('error: ', str(e))
         return jsonify({"error": "Server error", "details": str(e)})
+
+@app.route('/api/get_overall_league', methods=['GET', 'OPTIONS'])
+@token_required
+def get_overall_league(current_user):
+    """Overall league across all configured monument races.
+
+    This sums each race's `RaceLeague.league` for the given year.
+    Per-race league remains available via `/api/get_league`.
+    """
+
+    try:
+        year = request.args.get('year', 2026)
+        try:
+            year = int(year)
+        except Exception:
+            year = 2026
+
+        races_env = os.getenv('races') or os.getenv('RACES')
+        if not races_env:
+            return jsonify({"error": "Missing races configuration"}), 500
+        try:
+            races = json.loads(races_env)
+        except Exception as e:
+            return jsonify({'error': 'Invalid races configuration', 'details': str(e)}), 500
+
+        # Support both formats:
+        # - ["milano-sanremo", "paris-roubaix", ...]
+        # - [{"id": 1, "name": "milano-sanremo"}, ...]
+        race_slugs = []
+        if isinstance(races, list):
+            for r in races:
+                if isinstance(r, str):
+                    race_slugs.append(r)
+                elif isinstance(r, dict) and isinstance(r.get("name"), str):
+                    race_slugs.append(r["name"])
+
+        users = User.query.all()
+        totals = {user.id: 0 for user in users}
+
+        race_leagues = RaceLeague.query.filter(
+            RaceLeague.year == year,
+            RaceLeague.race.in_(race_slugs),
+        ).all()
+        for rl in race_leagues:
+            if not isinstance(rl.league, dict):
+                continue
+            for user_id_key, points in rl.league.items():
+                try:
+                    user_id = int(user_id_key)
+                except Exception:
+                    continue
+                try:
+                    totals[user_id] = totals.get(user_id, 0) + int(points or 0)
+                except Exception:
+                    totals[user_id] = totals.get(user_id, 0)
+
+        ranked = sorted(
+            (
+                {
+                    "user_id": u.id,
+                    "username": u.username,
+                    "points": totals.get(u.id, 0),
+                }
+                for u in users
+            ),
+            key=lambda row: row["points"],
+            reverse=True,
+        )
+
+        # Add rank (dense rank)
+        last_points = None
+        rank = 0
+        for row in ranked:
+            if last_points is None or row["points"] != last_points:
+                rank += 1
+                last_points = row["points"]
+            row["rank"] = rank
+
+        return jsonify({"year": year, "races": races, "race_slugs": race_slugs, "league": ranked}), 200
+    except Exception as e:
+        print("Error fetching overall league:", str(e))
+        return jsonify({"error": "Server error", "details": str(e)}), 500
 
 @app.route('/api/get_team', methods=['GET', 'OPTIONS'])
 @token_required
@@ -191,6 +303,38 @@ def get_races(current_user):
     except Exception as e:
         return jsonify({'error': 'Invalid races configuration', 'details': str(e)}), 500
     return jsonify(races)
+
+
+@app.route('/api/get_race_status', methods=['GET', 'OPTIONS'])
+@token_required
+def get_race_status(current_user):
+    try:
+        race = request.args.get('race')
+        year = request.args.get('year', 2026)
+        try:
+            year = int(year)
+        except Exception:
+            year = 2026
+
+        if not race:
+            return jsonify({"error": "Missing race parameter"}), 400
+
+        start_date = get_race_start_date(race, year)
+        locked = race_team_is_locked(race, year)
+        return (
+            jsonify(
+                {
+                    "race": race,
+                    "year": year,
+                    "start_date": start_date.isoformat() if start_date else None,
+                    "locked": locked,
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        print("Error fetching race status:", str(e))
+        return jsonify({"error": "Server error", "details": str(e)}), 500
 
 @app.route('/api/calculate_score', methods=['GET', 'OPTIONS'])
 @token_required

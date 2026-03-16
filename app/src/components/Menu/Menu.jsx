@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import './Menu.css';
-import axios from "axios";
 
 export default function Menu({ setRace, race, setDisplay, getTeam, setTeam, teams, races, year }) {
     const [expandedRace, setExpandedRace] = useState(null);
-    const user = localStorage.getItem('user')
 
     const toggleExpand = (raceId) => {
         setExpandedRace(expandedRace === raceId ? null : raceId);
@@ -13,6 +11,17 @@ export default function Menu({ setRace, race, setDisplay, getTeam, setTeam, team
     return (
         <aside className="Sidebar">
             <h2>Races</h2>
+            <button
+                type="button"
+                onClick={() => {
+                    setExpandedRace(null);
+                    setRace(null);
+                    setDisplay('overall');
+                }}
+                className={race === null ? 'active' : ''}
+            >
+                Monuments League
+            </button>
             <ul>
                 {races.map((raceEl) => (
                     <li key={raceEl.id}>

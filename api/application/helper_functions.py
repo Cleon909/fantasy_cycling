@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from procyclingstats import RaceStartlist, Rider
+import datetime
+from functools import lru_cache
+
+from procyclingstats import Race, RaceStartlist, Rider
 from application.models import Team, RiderUrl
 from application import db
 from flask import jsonify
@@ -73,6 +76,39 @@ def _patch_procyclingstats_to_use_curl_cffi() -> None:
 
 
 _patch_procyclingstats_to_use_curl_cffi()
+
+
+def _utc_today() -> datetime.date:
+    return datetime.datetime.now(datetime.timezone.utc).date()
+
+
+@lru_cache(maxsize=256)
+def get_race_start_date(race: str, year: int) -> datetime.date | None:
+    """Return the race start date (UTC date) for a PCS race slug/year.
+
+    `race` should be the PCS slug used elsewhere in this app (e.g. "milano-sanremo").
+    """
+
+    try:
+        startdate_str = Race(f"race/{race}/{year}").startdate()
+        # procyclingstats returns YYYY-MM-DD
+        return datetime.date.fromisoformat(startdate_str)
+    except Exception as e:
+        print(f"Failed to fetch startdate for race={race} year={year}: {e}")
+        return None
+
+
+def race_team_is_locked(race: str, year: int, today: datetime.date | None = None) -> bool:
+    """True if users should be prevented from selecting/updating teams."""
+
+    if today is None:
+        today = _utc_today()
+    start_date = get_race_start_date(race, year)
+    if start_date is None:
+        # If we can't determine the start date, default to *not* locking to
+        # avoid blocking the app due to transient scrape failures.
+        return False
+    return today >= start_date
 
 
 def start_list(race, year):
