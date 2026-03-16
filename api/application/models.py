@@ -26,33 +26,43 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     race = db.Column(db.String(64), index=True)
+    year = db.Column(db.Integer, default=2026)
     team = db.Column(db.JSON)
 
-    def __init__(self, user_id, race, team):
+    def __init__(self, user_id, race, team, year=2026):
         self.user_id = user_id
         self.race = race
+        self.year = year
         self.team = team
 
 class RiderPosition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     race = db.Column(db.String(64), index=True, nullable=False)
+    year = db.Column(db.Integer, default=2026)
     rider = db.Column(db.String(128), nullable=False)
     position = db.Column(db.Integer, nullable=False)
     points = db.Column(db.Integer, nullable=True)
 
-    def __init__(self, race, rider, position, points):
+    def __init__(self, race, rider, position, points, year=2026):
         self.race = race
+        self.year = year
         self.rider = rider
         self.position = position
-        self.polints = points
+        self.points = points
 
 class RaceLeague(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    race = db.Column(db.String(64), index=True, unique=True)
+    race = db.Column(db.String(64), index=True)
+    year = db.Column(db.Integer, default=2026, index=True)
     league = db.Column(db.JSON)
 
-    def __init__(self, race, league):
+    __table_args__ = (
+        db.UniqueConstraint('race', 'year', name='uq_race_league_race_year'),
+    )
+
+    def __init__(self, race, league, year=2026):
         self.race = race
+        self.year = year
         self.league = league
 
 class RiderUrl(db.Model):

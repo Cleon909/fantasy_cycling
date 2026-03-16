@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import './Menu.css';
 import axios from "axios";
 
-export default function Menu({ setRace, race, setDisplay, getTeam, setTeam, teams, races }) {
+export default function Menu({ setRace, race, setDisplay, getTeam, setTeam, teams, races, year }) {
     const [expandedRace, setExpandedRace] = useState(null);
     const user = localStorage.getItem('user')
 

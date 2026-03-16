@@ -22,9 +22,19 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.url_map.strict_slashes = False
 
 db = SQLAlchemy(app)
-CORS(app, supports_credentials=True, origins=[
-    "https://www.cloudofsuspicion.uk", "http://localhost:5173"
-])
+CORS(
+    app,
+    supports_credentials=True,
+    origins=[
+        "https://www.cloudofsuspicion.uk",
+        "https://cloudofsuspicion.uk",
+        "http://www.cloudofsuspicion.uk",
+        "http://cloudofsuspicion.uk",
+        "http://localhost:5173",
+    ],
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+)
 
 from application import routes
 

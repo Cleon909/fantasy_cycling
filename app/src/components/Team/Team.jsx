@@ -4,7 +4,7 @@ import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 import './Team.css';
 
-export default function Team({ race, teams, setTeam, token, riderResults }) {
+export default function Team({ race, teams, setTeam, token, riderResults, year }) {
   const [saveMessage, setSaveMessage] = useState('');
   const navigate = useNavigate();
 
@@ -13,7 +13,7 @@ export default function Team({ race, teams, setTeam, token, riderResults }) {
     try {
       const response = await axios.post(
         '/api/save_team',
-        { user, race, team },
+        { user, race, team, year },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -40,12 +40,12 @@ export default function Team({ race, teams, setTeam, token, riderResults }) {
   const removeRider = (rider) => {
     setTeam((prev) => ({
       ...prev,
-      [race]: (prev[race] || []).filter((r) => r !== rider),
+      [`${race}_${year}`]: (prev[`${race}_${year}`] || []).filter((r) => r !== rider),
     }));
   };
 
   const didTheyDNF = (riderName) => {
-    const result = riderResults[riderName]?.[0];
+    const result = riderResults[`${race}_${year}_${riderName}`]?.[0];
     if (result == 9999) { return 'DNF' }
     return result
   }
@@ -66,11 +66,11 @@ export default function Team({ race, teams, setTeam, token, riderResults }) {
             </tr>
           </thead>
           <tbody>
-            {(teams[race] || []).map((riderName, index) => (
+            {(teams[`${race}_${year}`] || []).map((riderName, index) => (
               <tr key={index}>
                 <td className="rider-name">{riderName}</td>
                 <td>{didTheyDNF(riderName)}</td>
-                <td>{riderResults[riderName]?.[1]}</td>
+                <td>{riderResults[`${race}_${year}_${riderName}`]?.[1]}</td>
                 <td>
                   <button
                     className="remove-btn"
@@ -87,7 +87,7 @@ export default function Team({ race, teams, setTeam, token, riderResults }) {
 
       <button
         className="save-btn"
-        onClick={() => saveTeam(race, teams[race])}
+        onClick={() => saveTeam(race, teams[`${race}_${year}`])}
       >
         Save Team
       </button>

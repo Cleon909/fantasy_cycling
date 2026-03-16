@@ -4,7 +4,7 @@ import './riders.css';
 import { logOut } from '../../utils/logout';
 import { useNavigate } from 'react-router-dom';
 
-export default function Riders({ race, token, setTeam }) {
+export default function Riders({ race, token, setTeam, year }) {
     const [riderList, setRiderList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -17,7 +17,6 @@ export default function Riders({ race, token, setTeam }) {
         const fetchRiders = async () => {
             setLoading(true);
             try {
-                const year = 2026;
                 const response = await axios.get('/api/riders', {
                     params: { race, year },
                     headers: {
@@ -42,7 +41,7 @@ export default function Riders({ race, token, setTeam }) {
 
         fetchRiders();
 
-    }, [race, token]);
+    }, [race, year, token, navigate]);
 
     if (!race) return <p>Please select a race.</p>;
     if (loading) return <p>Loading...</p>;
@@ -51,7 +50,7 @@ export default function Riders({ race, token, setTeam }) {
 
     const addRider = (rider) => {
         setTeam(prevTeam => {
-            const currentRaceTeam = prevTeam[race] || [];
+            const currentRaceTeam = prevTeam[`${race}_${year}`] || [];
 
             if (currentRaceTeam.length >= 9) {
                 alert('You already have 9 riders for this race');
@@ -63,10 +62,10 @@ export default function Riders({ race, token, setTeam }) {
                 return prevTeam;
             }
 
-            // Return a new team object, updating only the current race
+            // Return a new team object, updating only the current race/year
             return {
                 ...prevTeam,
-                [race]: [...currentRaceTeam, rider],
+                [`${race}_${year}`]: [...currentRaceTeam, rider],
             };
         });
     };

@@ -10,7 +10,9 @@ from functools import wraps
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+# Load dotenv from this package directory so it works in Docker (WORKDIR=/app)
+# and local runs alike.
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
 
 @app.before_request
 def log_request_info():
@@ -61,6 +63,10 @@ def login():
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        # Browsers send an unauthenticated CORS preflight OPTIONS request before
+        # requests with an Authorization header. Do not require JWT for preflight.
+        if request.method == 'OPTIONS':
+            return '', 204
         key = app.config['SECRET_KEY']
         token = None
         # JWT can be sent in the Authorization header as "Bearer <token>"
@@ -141,13 +147,14 @@ def save_team(current_user):
         data = request.get_json()
         user = data.get('user')
         race = data.get('race')
+        year = data.get('year', 2026)
         team = data.get('team')
 
         userID = User.query.filter_by(username=user).first().id
-        print(f"recieved user: {user}, race: {race}, team:{team}")
+        print(f"recieved user: {user}, race: {race}, year: {year}, team:{team}")
         if not team:
             return jsonify({"error": "no team supplied"}, 404)
-        save_team_to_db(userID, race, team)
+        save_team_to_db(userID, race, team, year)
         return jsonify({"message": "Team saved successfully"}), 200
     except Exception as e:
         print('error: ', str(e))
@@ -158,8 +165,13 @@ def save_team(current_user):
 def get_team(current_user):
     user = request.args.get('user')
     race = request.args.get('race')
-    print(f"recieved user: {user}, race: {race}, userID {current_user.id}")
-    team = Team.query.filter_by(user_id=current_user.id, race=race).first()
+    year = request.args.get('year', 2026)
+    try:
+        year = int(year)
+    except Exception:
+        year = 2026
+    print(f"recieved user: {user}, race: {race}, year: {year}, userID {current_user.id}")
+    team = Team.query.filter_by(user_id=current_user.id, race=race, year=year).first()
     print(team)
     if not team:
         return jsonify({"team": []})
@@ -168,18 +180,31 @@ def get_team(current_user):
 @app.route('/api/get_races', methods=['GET', 'OPTIONS'])
 @token_required
 def get_races(current_user):
-    races_env = os.getenv('races')
-    races = json.loads(races_env)
+    races_env = os.getenv('races') or os.getenv('RACES')
+    if not races_env:
+        return jsonify({
+            'error': 'Missing races configuration',
+            'hint': "Set env var 'races' (or 'RACES') to a JSON array",
+        }), 500
+    try:
+        races = json.loads(races_env)
+    except Exception as e:
+        return jsonify({'error': 'Invalid races configuration', 'details': str(e)}), 500
     return jsonify(races)
 
 @app.route('/api/calculate_score', methods=['GET', 'OPTIONS'])
 @token_required
 def calculate_score(current_user,):
     race_name = request.args.get('race_name')
+    year = request.args.get('year', 2026)
     riders_positions = {}
     league_table = {}
     try:
-        list_of_teams = Team.query.filter_by(race=race_name).all()
+        try:
+            year = int(year)
+        except Exception:
+            year = 2026
+        list_of_teams = Team.query.filter_by(race=race_name, year=year).all()
         for team in list_of_teams:
             league_table[team.user_id] = 0
         all_riders = [
@@ -201,17 +226,17 @@ def calculate_score(current_user,):
                 for team in list_of_teams:
                     if rider in team.team:
                         league_table[team.user_id] += points
-                existing = RiderPosition.query.filter_by(race=race_name, rider=rider).first()
+                existing = RiderPosition.query.filter_by(race=race_name, year=year, rider=rider).first()
                 if existing:
                     existing.position = position
                     existing.points = points
                 else:
-                    db.session.add(RiderPosition(race=race_name, rider=rider, position=position, points=points))
-                existing_league = RaceLeague.query.filter_by(race=race_name).first()
+                    db.session.add(RiderPosition(race=race_name, rider=rider, position=position, points=points, year=year))
+                existing_league = RaceLeague.query.filter_by(race=race_name, year=year).first()
                 if existing_league:
                     existing_league.league = league_table
                 else:
-                    db.session.add(RaceLeague(race=race_name, league=league_table))             
+                    db.session.add(RaceLeague(race=race_name, league=league_table, year=year))             
                 db.session.commit()
         for team in league_table:
             print(f"User ID: {team}, Total Points: {league_table[team]}")
@@ -229,9 +254,14 @@ def calculate_score(current_user,):
 def results(current_user):
     try:
         race_name = request.args.get('race')
-        print(f"Fetching position for race: {race_name}")
+        year = request.args.get('year', 2026)
+        print(f"Fetching position for race: {race_name}, year: {year}")
+        try:
+            year = int(year)
+        except Exception:
+            year = 2026
         rider_name = request.args.get('rider')
-        rider_data = RiderPosition.query.filter_by(race=race_name, rider=rider_name).first()
+        rider_data = RiderPosition.query.filter_by(race=race_name, year=year, rider=rider_name).first()
         print(f"Rider data: {rider_data}")
         return jsonify({"position": rider_data.position, "points": rider_data.points}), 200
     except Exception as e:
@@ -243,7 +273,12 @@ def results(current_user):
 def get_league(current_user):
     try:
         race_name = request.args.get('race')
-        league_data = RaceLeague.query.filter_by(race=race_name).first()
+        year = request.args.get('year', 2026)
+        try:
+            year = int(year)
+        except Exception:
+            year = 2026
+        league_data = RaceLeague.query.filter_by(race=race_name, year=year).first()
         if not league_data:
             return jsonify({"league": {}}), 200
         return jsonify({"league": league_data.league}), 200

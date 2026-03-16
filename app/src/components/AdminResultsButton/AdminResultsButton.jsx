@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./AdminResultsButton.css";
 
-export default function AdminResultsButton({ races, token }) {
+export default function AdminResultsButton({ races, token, year }) {
   const user = localStorage.getItem("user");
   if (user !== "Admin") return null;
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +18,7 @@ export default function AdminResultsButton({ races, token }) {
     try {
       const response = await axios.get(
         "/api/calculate_score", {
-        params: { race_name: selectedRace },
+        params: { race_name: selectedRace, year },
         headers: { Authorization: `Bearer ${token}` },
       },
       )
